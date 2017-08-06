@@ -1,17 +1,15 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# https://www.vagrantup.com/docs/vagrantfile/#lookup-path
-
 module Vagrant
-  def self.add_machines(machines)
-    machines.each do |type, values|
-      type_instance_name = :"@#{type}"
-      if instance_variable_defined? type_instance_name
-        values.merge! instance_variable_get(type_instance_name)
-      end
+  @default_machines = {
+    web: { active: true,  memory: '1024', hostname: 'vagrant.web'},
+    db:  { active: false, memory: '512',  hostname: 'vagrant.db'}
+  }
 
-      values.each do |name, value|
+  def self.configure_machines(machines = {})
+    @default_machines.each do |type, values|
+      values.merge(machines[type] || {}).each do |name, value|
         accessor_name = name == :active ? :"#{type}?" : :"#{type}_#{name}"
         define_singleton_method accessor_name do
           value
@@ -19,11 +17,6 @@ module Vagrant
       end
     end
   end
-
-  add_machines(
-    web: { active: true,  memory: '1024', hostname: 'vagrant.web'},
-    db:  { active: false, memory: '512',  hostname: 'vagrant.db'}
-  )
 
   def self.free_ip
     loop do
