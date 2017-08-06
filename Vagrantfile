@@ -47,11 +47,11 @@ Vagrant.configure(2) do |config|
     config.cache.scope = :box
     config.cache.synced_folder_opts = {
       owner: "_apt",
-      group: "vagrant"
+      mount_options: ["dmode=777", "fmode=666"]
     }
   end
 
-  if Vagrant.web?
+  if Vagrant.respond_to?(:web?) && Vagrant.web?
     config.vm.define :web, primary: true do |node|
       node.vm.hostname = Vagrant.web_hostname
       node.vm.network :private_network, ip: Vagrant.free_ip
@@ -62,7 +62,7 @@ Vagrant.configure(2) do |config|
     end
   end
 
-  if Vagrant.db?
+  if Vagrant.respond_to?(:db?) && Vagrant.db?
     config.vm.define :db do |node|
       node.vm.hostname = Vagrant.db_hostname
       node.vm.network :private_network, ip: Vagrant.free_ip
