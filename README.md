@@ -2,7 +2,7 @@
 
 ## Installation
 
-$ wget -qO ~/.vagrant.d/Vagrantfile https://raw.githubusercontent.com/patleb/ext_vagrant/master/Vagrantfile
+    $ wget -qO ~/.vagrant.d/Vagrantfile https://raw.githubusercontent.com/patleb/ext_vagrant/master/Vagrantfile
 
 ## Configuration
 
