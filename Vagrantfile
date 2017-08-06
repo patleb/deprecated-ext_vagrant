@@ -1,6 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'socket'
+
 module Vagrant
   @default_machines = {
     web: { active: true,  memory: '1024', hostname: 'vagrant.web'},
@@ -19,10 +21,15 @@ module Vagrant
   end
 
   def self.free_ip
+    network_file = '.vagrant/network'
+    network = File.exist?(network_file) ? File.readlines(network_file).first.strip : ''
+    networks = [''].concat Socket.getifaddrs.map{ |i| i.addr.ip_address.sub(/\.\d+/, '') if i.addr.ipv4? }.compact
     loop do
+      break unless networks.include?(network)
       network = "192.168.#{rand(4..254)}"
-      return "#{network}.#{rand(2..254)}" unless `ifconfig`.include?(network)
     end
+    File.open(network_file, 'w') { |f| f.write(network) }
+    "#{network}.#{rand(2..254)}"
   end
 end
 
