@@ -5,8 +5,8 @@ require 'socket'
 
 module Vagrant
   @default_machines = {
-    web: { active: true,  memory: '1024', hostname: 'vagrant.web'},
-    db:  { active: false, memory: '512',  hostname: 'vagrant.db'}
+    web: { active: true,  memory: '1024', hostname: 'vagrant-web.dev'},
+    db:  { active: false, memory: '512',  hostname: 'vagrant-db.dev'}
   }
 
   def self.configure_machines?
