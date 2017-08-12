@@ -9,7 +9,13 @@ module Vagrant
     db:  { active: false, memory: '512',  hostname: 'vagrant.db'}
   }
 
+  def self.configure_machines?
+    @configure_machines
+  end
+
   def self.configure_machines(machines = {})
+    @configure_machines = true
+
     @default_machines.each do |type, values|
       values.merge(machines[type] || {}).each do |name, value|
         accessor_name = name == :active ? :"#{type}?" : :"#{type}_#{name}"
@@ -34,41 +40,43 @@ module Vagrant
 end
 
 Vagrant.configure(2) do |config|
-  config.vm.box = 'bento/ubuntu-16.04'
+  if Vagrant.configure_machines?
+    config.vm.box = 'bento/ubuntu-16.04'
 
-  config.ssh.forward_agent = true
+    config.ssh.forward_agent = true
 
-  if Vagrant.has_plugin? 'vagrant-hostmanager'
-    config.hostmanager.enabled = true
-    config.hostmanager.manage_host = true
-  end
+    if Vagrant.has_plugin? 'vagrant-hostmanager'
+      config.hostmanager.enabled = true
+      config.hostmanager.manage_host = true
+    end
 
-  if Vagrant.has_plugin? 'vagrant-cachier'
-    config.cache.scope = :box
-    config.cache.synced_folder_opts = {
-      owner: "_apt",
-      mount_options: ["dmode=777", "fmode=666"]
-    }
-  end
+    if Vagrant.has_plugin? 'vagrant-cachier'
+      config.cache.scope = :box
+      config.cache.synced_folder_opts = {
+        owner: "_apt",
+        mount_options: ["dmode=777", "fmode=666"]
+      }
+    end
 
-  if Vagrant.respond_to?(:web?) && Vagrant.web?
-    config.vm.define :web, primary: true do |node|
-      node.vm.hostname = Vagrant.web_hostname
-      node.vm.network :private_network, ip: Vagrant.free_ip
+    if Vagrant.web?
+      config.vm.define :web, primary: true do |node|
+        node.vm.hostname = Vagrant.web_hostname
+        node.vm.network :private_network, ip: Vagrant.free_ip
 
-      config.vm.provider :virtualbox do |vb|
-        vb.memory = Vagrant.web_memory
+        config.vm.provider :virtualbox do |vb|
+          vb.memory = Vagrant.web_memory
+        end
       end
     end
-  end
 
-  if Vagrant.respond_to?(:db?) && Vagrant.db?
-    config.vm.define :db do |node|
-      node.vm.hostname = Vagrant.db_hostname
-      node.vm.network :private_network, ip: Vagrant.free_ip
+    if Vagrant.db?
+      config.vm.define :db do |node|
+        node.vm.hostname = Vagrant.db_hostname
+        node.vm.network :private_network, ip: Vagrant.free_ip
 
-      config.vm.provider :virtualbox do |vb|
-        vb.memory = Vagrant.db_memory
+        config.vm.provider :virtualbox do |vb|
+          vb.memory = Vagrant.db_memory
+        end
       end
     end
   end
