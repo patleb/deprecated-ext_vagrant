@@ -26,7 +26,10 @@ module Vagrant
     end
   end
 
-  def self.free_ip
+  def self.free_ip(type)
+    ip_file = ".vagrant/#{type}_ip"
+    return File.readlines(ip_file).first.strip if File.exist?(ip_file)
+
     network_file = '.vagrant/network'
     network = File.exist?(network_file) ? File.readlines(network_file).first.strip : ''
     networks = [''].concat Socket.getifaddrs.map{ |i| i.addr.ip_address.sub(/\.\d+/, '') if i.addr.ipv4? }.compact
@@ -35,7 +38,9 @@ module Vagrant
       network = "192.168.#{rand(4..254)}"
     end
     File.open(network_file, 'w') { |f| f.write(network) }
-    "#{network}.#{rand(2..254)}"
+    ip = "#{network}.#{rand(2..254)}"
+    File.open(ip_file, 'w') { |f| f.write(ip) }
+    ip
   end
 end
 
@@ -61,7 +66,7 @@ Vagrant.configure(2) do |config|
     if Vagrant.web?
       config.vm.define :web, primary: true do |node|
         node.vm.hostname = Vagrant.web_hostname
-        node.vm.network :private_network, ip: (ip = Vagrant.free_ip)
+        node.vm.network :private_network, ip: (ip = Vagrant.free_ip(:web))
 
         config.vm.provider :virtualbox do |vb|
           vb.memory = Vagrant.web_memory
@@ -73,7 +78,7 @@ Vagrant.configure(2) do |config|
     if Vagrant.db?
       config.vm.define :db do |node|
         node.vm.hostname = Vagrant.db_hostname
-        node.vm.network :private_network, ip: (ip = Vagrant.free_ip)
+        node.vm.network :private_network, ip: (ip = Vagrant.free_ip(:db))
 
         config.vm.provider :virtualbox do |vb|
           vb.memory = Vagrant.db_memory
