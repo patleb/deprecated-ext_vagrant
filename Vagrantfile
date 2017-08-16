@@ -61,10 +61,11 @@ Vagrant.configure(2) do |config|
     if Vagrant.web?
       config.vm.define :web, primary: true do |node|
         node.vm.hostname = Vagrant.web_hostname
-        node.vm.network :private_network, ip: Vagrant.free_ip
+        node.vm.network :private_network, ip: (ip = Vagrant.free_ip)
 
         config.vm.provider :virtualbox do |vb|
           vb.memory = Vagrant.web_memory
+          vb.name = "web-#{ip}"
         end
       end
     end
@@ -72,10 +73,11 @@ Vagrant.configure(2) do |config|
     if Vagrant.db?
       config.vm.define :db do |node|
         node.vm.hostname = Vagrant.db_hostname
-        node.vm.network :private_network, ip: Vagrant.free_ip
+        node.vm.network :private_network, ip: (ip = Vagrant.free_ip)
 
         config.vm.provider :virtualbox do |vb|
           vb.memory = Vagrant.db_memory
+          vb.name = "db-#{ip}"
         end
       end
     end
