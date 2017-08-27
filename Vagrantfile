@@ -4,9 +4,10 @@
 require 'socket'
 
 module Vagrant
+  # TODO machines.each do ...
   @default_machines = {
-    web: { active: true,  memory: '1024', hostname: 'vagrant-web.dev'},
-    db:  { active: false, memory: '512',  hostname: 'vagrant-db.dev'}
+    web: { primary: true,  active: true,  memory: '1024', hostname: 'vagrant-web.dev', subdomains: ['admin', 'api']},
+    db:  { primary: false, active: false, memory: '512',  hostname: 'vagrant-db.dev',  subdomains: []}
   }
 
   def self.configure_machines?
@@ -67,6 +68,9 @@ Vagrant.configure(2) do |config|
       config.vm.define :web, primary: true do |node|
         node.vm.hostname = Vagrant.web_hostname
         node.vm.network :private_network, ip: (ip = Vagrant.free_ip(:web))
+        if Vagrant.has_plugin?('vagrant-hostmanager') && Vagrant.web_subdomains.any?
+          node.hostmanager.aliases = Vagrant.web_subdomains.map{ |name| "#{name}.#{Vagrant.web_hostname}" }
+        end
 
         config.vm.provider :virtualbox do |vb|
           vb.memory = Vagrant.web_memory
@@ -79,6 +83,9 @@ Vagrant.configure(2) do |config|
       config.vm.define :db do |node|
         node.vm.hostname = Vagrant.db_hostname
         node.vm.network :private_network, ip: (ip = Vagrant.free_ip(:db))
+        if Vagrant.has_plugin?('vagrant-hostmanager') && Vagrant.db_subdomains.any?
+          node.hostmanager.aliases = Vagrant.db_subdomains.map{ |name| "#{name}.#{Vagrant.db_hostname}" }
+        end
 
         config.vm.provider :virtualbox do |vb|
           vb.memory = Vagrant.db_memory
