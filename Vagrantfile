@@ -6,7 +6,7 @@ require 'socket'
 module Vagrant
   # TODO machines.each do ...
   @default_machines = {
-    web: { primary: true,  active: true,  memory: '1024', hostname: 'vagrant-web.dev', subdomains: ['admin', 'api']},
+    web: { primary: true,  active: true,  memory: '1024', hostname: 'vagrant-web.dev', subdomains: []},
     db:  { primary: false, active: false, memory: '512',  hostname: 'vagrant-db.dev',  subdomains: []}
   }
 
