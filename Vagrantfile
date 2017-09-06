@@ -33,7 +33,7 @@ module Vagrant
 
     network_file = '.vagrant/network'
     network = File.exist?(network_file) ? File.readlines(network_file).first.strip : ''
-    networks = [''].concat Socket.getifaddrs.map{ |i| i.addr.ip_address.sub(/\.\d+/, '') if i.addr.ipv4? }.compact
+    networks = [''].concat Socket.getifaddrs.map{ |i| i.addr.ip_address.sub(/\.\d+$/, '') if i.addr.ipv4? }.compact
     loop do
       break unless networks.include?(network)
       network = "192.168.#{rand(4..254)}"
