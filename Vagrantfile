@@ -25,6 +25,12 @@ module Vagrant
         end
       end
     end
+
+    if block_given?
+      Vagrant.configure(2) do |config|
+        yield config
+      end
+    end
   end
 
   def self.free_ip(type)
