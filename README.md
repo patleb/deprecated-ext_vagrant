@@ -21,6 +21,17 @@ Vagrant.configure(2) do |config|
 end
 ```
 
+or
+
+```ruby
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure_machines(db: { active: true }) do |config|
+  ...
+end
+```
+
 ## Defaults
 
 ```ruby
