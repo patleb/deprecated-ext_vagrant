@@ -38,3 +38,8 @@ end
 web: { active: true,  memory: '1024', hostname: 'vagrant.web'},
 db:  { active: false, memory: '512',  hostname: 'vagrant.db'}
 ```
+
+## VirtualBox Snapshots
+
+    $ VBoxManage snapshot "web-$(cat .vagrant/web_ip)" take <snapshot name>
+    $ VBoxManage snapshot "web-$(cat .vagrant/web_ip)" restorecurrent
